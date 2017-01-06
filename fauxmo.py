@@ -27,7 +27,9 @@ THE SOFTWARE.
 # For a complete discussion, see http://www.makermusings.com
 
 import email.utils
+import json
 import requests
+from requests.auth import HTTPBasicAuth
 import select
 import socket
 import struct
@@ -36,7 +38,7 @@ import time
 import urllib
 import uuid
 
-
+from settings import *
 
 # This XML is the minimum needed to define one of our virtual switches
 # to the Amazon Echo
@@ -103,13 +105,15 @@ class poller:
             if target:
                 target.do_read(one_ready[0])
  
-
 # Base class for a generic UPnP device. This is far from complete
 # but it supports either specified or automatic IP address and port
 # selection.
 
 class upnp_device(object):
-    this_host_ip = None
+    try:
+        this_host_ip = LISTENIP
+    except NameError:
+        this_host_ip = None
 
     @staticmethod
     def local_ip_address():
@@ -360,18 +364,53 @@ class upnp_broadcast_responder(object):
 # and off command are invoked respectively. It ignores any return data.
 
 class rest_api_handler(object):
-    def __init__(self, on_cmd, off_cmd):
-        self.on_cmd = on_cmd
-        self.off_cmd = off_cmd
+    def __init__(self, device):
+        self.on_cmd = BASEURL + DEVICESURL + "/" + device + "/command/on"
+        self.off_cmd = BASEURL + DEVICESURL + "/" + device + "/command/off"
+
+    def auth(self):
+        payload = {
+            "form": "true",
+            "login": USERNAME,
+            "password": PASSWORD,
+            "keepme": "false",
+            "default_ui": 1
+        }
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        r = requests.post(AUTHURL, data=json.dumps(payload), headers=headers)
+        if r.status_code == 200:
+            return r.cookies
+        else:
+            if DEBUG:
+                print payload
+                print r.status_code
+                print r.text
+            return False
 
     def on(self):
-        r = requests.get(self.on_cmd)
+        cookies = self.auth()
+        assert cookies != False, "Authentication failed"
+        r = requests.get(self.on_cmd, cookies = cookies)
+        if DEBUG:
+            print self.on_cmd
+            print cookies
+            print r.text
+            print r.status_code
         return r.status_code == 200
 
     def off(self):
-        r = requests.get(self.off_cmd)
+        cookies = self.auth()
+        assert cookies != False, "Authentication failed"
+        r = requests.get(self.off_cmd, cookies = cookies)
+        if DEBUG:
+            print self.off_cmd
+            print cookies
+            print r.text
+            print r.status_code
         return r.status_code == 200
-
 
 # Each entry is a list with the following elements:
 #
@@ -384,10 +423,13 @@ class rest_api_handler(object):
 # list will be used.
 
 FAUXMOS = [
-    ['office lights', rest_api_handler('http://192.168.5.4/ha-api?cmd=on&a=office', 'http://192.168.5.4/ha-api?cmd=off&a=office')],
-    ['kitchen lights', rest_api_handler('http://192.168.5.4/ha-api?cmd=on&a=kitchen', 'http://192.168.5.4/ha-api?cmd=off&a=kitchen')],
+    ['office lights', rest_api_handler('ZWayVDev_zway_11-0-37'), 49541],
+    ['bathroom fan', rest_api_handler('ZWayVDev_zway_15-0-37'), 49542],
+    ['lounge fairy lights', rest_api_handler('ZWayVDev_zway_53-0-37'), 49543],
+    ['lounge tv', rest_api_handler('ZWayVDev_zway_52-0-37'), 49544],
+    ['lounge lamp', rest_api_handler('ZWayVDev_zway_17-0-38'), 49545],
+    ['bar lights', rest_api_handler('RGB_15'), 49546]
 ]
-
 
 if len(sys.argv) > 1 and sys.argv[1] == '-d':
     DEBUG = True
@@ -420,4 +462,3 @@ while True:
     except Exception, e:
         dbg(e)
         break
-
