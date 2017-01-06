@@ -28,9 +28,9 @@ different ways.
 All of the code to make it work is contained in two files, `fauxmo.py` and `settings.py`.
 
 * Copy the fauxmo.py file to your server.
-* Edit and copy the settings-sample.py file, renaming to `settings.py`.
+* Edit and copy the `settings-sample.py` file, renaming to `settings.py`.
 
-The FAUXMOS list for the device names is an array of ['name', 'device ID', [Optional: port number]]
+The FAUXMOS list for the device names is an array of [`name`, `device ID`, [Optional: `port number`]]
 you want and the URLs to invoke for on and off commands for each one. You can execute it
 simply as `./fauxmo.py`. If you want debug output, execute `./fauxmo.py -d`. If you
 want it to run for an extended period, you could do something like `nohup ./fauxmo.py &`
