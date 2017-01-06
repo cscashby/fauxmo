@@ -412,25 +412,6 @@ class rest_api_handler(object):
             print r.status_code
         return r.status_code == 200
 
-# Each entry is a list with the following elements:
-#
-# name of the virtual switch
-# object with 'on' and 'off' methods
-# port # (optional; may be omitted)
-
-# NOTE: As of 2015-08-17, the Echo appears to have a hard-coded limit of
-# 16 switches it can control. Only the first 16 elements of the FAUXMOS
-# list will be used.
-
-FAUXMOS = [
-    ['office lights', rest_api_handler('ZWayVDev_zway_11-0-37'), 49541],
-    ['bathroom fan', rest_api_handler('ZWayVDev_zway_15-0-37'), 49542],
-    ['lounge fairy lights', rest_api_handler('ZWayVDev_zway_53-0-37'), 49543],
-    ['lounge tv', rest_api_handler('ZWayVDev_zway_52-0-37'), 49544],
-    ['lounge lamp', rest_api_handler('ZWayVDev_zway_17-0-38'), 49545],
-    ['bar lights', rest_api_handler('RGB_15'), 49546]
-]
-
 if len(sys.argv) > 1 and sys.argv[1] == '-d':
     DEBUG = True
 
@@ -450,7 +431,7 @@ for one_faux in FAUXMOS:
     if len(one_faux) == 2:
         # a fixed port wasn't specified, use a dynamic one
         one_faux.append(0)
-    switch = fauxmo(one_faux[0], u, p, None, one_faux[2], action_handler = one_faux[1])
+    switch = fauxmo(one_faux[0], u, p, None, one_faux[2], action_handler = rest_api_handler(one_faux[1]))
 
 dbg("Entering main loop\n")
 

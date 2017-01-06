@@ -13,15 +13,24 @@ emulates the Belkin WeMo devices in software, allowing you to have it appear tha
 any number of them are on your network and to link their on and off actions to
 any code you want.
 
+### Prerequisites
+
+This application requires:
+* Python 2.7 and standard libraries.
+* A Z-Wave.me server is required (such as the Razberry project from http://razberry.z-wave.me/) with the Z-Wave.me API format.
+
 ### Instructions
 
-All of the code to make it work is contained in the single file, `fauxmo.py`. It
-requires Python 2.7 and standard libraries. The example handler class that
-reacts to on and off commands uses the [python-requests](http://docs.python-requests.org/en/latest/)
+The example handler class reacts to on and off commands uses the [python-requests](http://docs.python-requests.org/en/latest/)
 library, but could be replaced with code that does the same thing in many
 different ways.
 
-Copy the fauxmo.py file to your server and edit the FAUXMOS list for the device names
+All of the code to make it work is contained in two files, `fauxmo.py` and `settings.py`.
+
+* Copy the fauxmo.py file to your server.
+* Edit and copy the settings-sample.py file, renaming to `settings.py`.
+
+The FAUXMOS list for the device names is an array of ['name', 'device ID', [Optional: port number]]
 you want and the URLs to invoke for on and off commands for each one. You can execute it
 simply as `./fauxmo.py`. If you want debug output, execute `./fauxmo.py -d`. If you
 want it to run for an extended period, you could do something like `nohup ./fauxmo.py &`
