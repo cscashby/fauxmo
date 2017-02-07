@@ -36,6 +36,11 @@ simply as `./fauxmo.py`. If you want debug output, execute `./fauxmo.py -d`. If 
 want it to run for an extended period, you could do something like `nohup ./fauxmo.py &`
 or take extra steps to make it run at startup, etc.
 
+**Note:** If you have more than one network interface and you are listening on an interface other than eth0 you will
+need to set up a static route to the multicast address by editing `/etc/network/interfaces`
+
+    `post-up route add -net 224.0.0.0 netmask 240.0.0.0 dev eth1`
+
 **Note:** unless you specify port numbers in the creation of your fauxmo objetcs, your
 virtual switch devices will use a different port every time you run fauxmo.py, which will
 make it hard for the Echo to find them. So you should plan to either leave the script
